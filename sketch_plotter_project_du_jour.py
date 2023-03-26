@@ -1,5 +1,6 @@
 import vsketch
 from shapely.geometry import Point, LinearRing
+from shapely import affinity
 import numpy as np
 from point2d import Point2D
 
@@ -28,18 +29,17 @@ class PlotterProjectDuJourSketch(vsketch.SketchClass):
         vsk.translate(self.margin, self.margin)
         vsk.penWidth(f"{self.pen_width}")
 
-        center = Point2D(self.width / 2, self.height / 2)
+        cx = self.width / 2
+        cy = self.height / 2
         thetas = np.linspace(0, 2 * np.pi, self.num_points)
-        points2d = [Point2D(a=theta, r=self.radius) for theta in thetas]
-        vsk.geometry(
-            LinearRing([Point((p + center).cartesian()) for p in points2d]))
-
-        # implement your sketch here
-        # layers = [1 + i for i in range(self.num_layers)]
-        # layer = layers[int(vsk.random(0, len(layers)))]
-        # vsk.stroke(layer)
-        # vsk.fill(layer)
-        # vsk.circle(0, 0, self.radius, mode="radius")
+        circle = [Point2D(a=theta, r=1).cartesian() for theta in thetas]
+        mapping = [(y,
+                    2 * x * y + .0001 * x**2 - .000002 * (y / self.radius)**3)
+                   for (x, y) in circle]
+        shape = LinearRing(mapping)
+        shape = affinity.scale(shape, self.radius, self.radius)
+        shape = affinity.translate(shape, cx, cy)
+        vsk.geometry(shape)
 
     def finalize(self, vsk: vsketch.Vsketch) -> None:
         vsk.vpype("linemerge linesimplify reloop linesort")
