@@ -33,8 +33,8 @@ class PlotterProjectDuJourSketch(vsketch.SketchClass):
         cy = self.height / 2
         thetas = np.linspace(0, 2 * np.pi, self.num_points)
         circle = [Point2D(a=theta, r=1).cartesian() for theta in thetas]
-        mapping = [(y,
-                    2 * x * y + .0001 * x**2 - .000002 * (y / self.radius)**3)
+        mapping = [(x**2 - y**2 + 3 * x - 2 * x * y,
+                    2 * x * y * y + .0001 * x**2 - .02 * (y)**3)
                    for (x, y) in circle]
         shape = LinearRing(mapping)
         shape = affinity.scale(shape, self.radius, self.radius)
