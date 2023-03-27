@@ -63,21 +63,24 @@ class PlotterProjectDuJourSketch(vsketch.SketchClass):
     num_layers = vsketch.Param(1)
     num_points = vsketch.Param(360)
     radius = vsketch.Param(1.0, decimals=3, unit="in")
-    max_degree = vsketch.Param(3)
-    max_coefficient = vsketch.Param(0.2)
-    inclusion_probability = vsketch.Param(0.1)
+    min_degree = vsketch.Param(2)
+    max_degree = vsketch.Param(5)
+    max_coefficient = vsketch.Param(1)
+    inclusion_probability = vsketch.Param(0.5)
     precision = vsketch.Param(3)
 
     def random_point(self, vsk: vsketch.Vsketch):
         return Point(vsk.random(0, self.width), vsk.random(0, self.height))
 
     def random_function(self, vsk: vsketch.Vsketch):
+        x_degree = round(vsk.random(self.min_degree, self.max_degree))
+        y_degree = round(vsk.random(self.min_degree, self.max_degree))
         f = np.array([[
             np.around(vsk.random(-self.max_coefficient, self.max_coefficient),
                       self.precision)
             if vsk.random(0, 1) <= self.inclusion_probability else None
-            for _ in range(self.max_degree + 1)
-        ] for _ in range(self.max_degree + 1)])
+            for _ in range(x_degree + 1)
+        ] for _ in range(y_degree + 1)])
         if np.any(f):
             return f
         self.inclusion_probability += 0.05
