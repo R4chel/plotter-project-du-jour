@@ -107,20 +107,19 @@ class PlotterProjectDuJourSketch(vsketch.SketchClass):
         # mapping = [f(x, y) for (x, y) in mapping]
         func1 = self.random_function(vsk)
         func2 = self.random_function(vsk)
-        print(f"x func: {func_str(func1)}")
-        print(f"y func: {func_str(func2)}")
-        mapping = [(compute(func1, x, y), compute(func2, x, y))
-                   for (x, y) in circle]
+        print(f"func1: {func_str(func1)}")
+        print(f"func2: {func_str(func2)}")
+        mapping = [(y, compute(func1, x, y)) for (x, y) in circle]
         shape = LinearRing(mapping)
 
         shape = affinity.scale(shape, self.radius, self.radius)
         shape = affinity.translate(shape, cx, cy)
-        shape2 = affinity.scale(LinearRing(mapping), self.radius / 2,
-                                self.radius / 2)
+        mapping2 = [(y, compute(func2, x, y)) for (x, y) in mapping]
+        shape2 = affinity.scale(LinearRing(mapping2), self.radius, self.radius)
         shape2 = affinity.translate(shape2, cx, cy)
         vsk.geometry(shape)
-        # vsk.stroke(2)
-        # vsk.geometry(shape2)
+        vsk.stroke(2)
+        vsk.geometry(shape2)
 
     def finalize(self, vsk: vsketch.Vsketch) -> None:
         vsk.vpype("linemerge linesimplify reloop linesort")
