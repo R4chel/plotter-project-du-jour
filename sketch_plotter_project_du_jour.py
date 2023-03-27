@@ -44,12 +44,12 @@ def compute(f, x, y):
     return sum
 
 
-def print_f(f):
+def func_str(f):
     str = " + ".join([
         f"{coeff}x^{degrees[0]}y^{degrees[1]}"
         for (degrees, coeff) in np.ndenumerate(f) if coeff is not None
     ])
-    print(str)
+    return str
 
 
 class PlotterProjectDuJourSketch(vsketch.SketchClass):
@@ -72,12 +72,16 @@ class PlotterProjectDuJourSketch(vsketch.SketchClass):
         return Point(vsk.random(0, self.width), vsk.random(0, self.height))
 
     def random_function(self, vsk: vsketch.Vsketch):
-        return np.array([[
+        f = np.array([[
             np.around(vsk.random(-self.max_coefficient, self.max_coefficient),
                       self.precision)
-            if vsk.random(0, 1) < self.inclusion_probability else None
+            if vsk.random(0, 1) <= self.inclusion_probability else None
             for _ in range(self.max_degree + 1)
         ] for _ in range(self.max_degree + 1)])
+        if np.any(f):
+            return f
+        self.inclusion_probability += 0.05
+        return self.random_function(vsk)
 
     def draw(self, vsk: vsketch.Vsketch) -> None:
         vsk.size(f"{self.height}x{self.width}",
@@ -103,8 +107,8 @@ class PlotterProjectDuJourSketch(vsketch.SketchClass):
         # mapping = [f(x, y) for (x, y) in mapping]
         func1 = self.random_function(vsk)
         func2 = self.random_function(vsk)
-        print_f(func1)
-        print_f(func2)
+        print(f"x func: {func_str(func1)}")
+        print(f"y func: {func_str(func2)}")
         mapping = [(compute(func1, x, y), compute(func2, x, y))
                    for (x, y) in circle]
         shape = LinearRing(mapping)
